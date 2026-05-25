@@ -28,3 +28,88 @@ Have you got what it takes to become a professional software engineer? Cool I'll
 
 <img width="773" alt="Screenshot 2021-03-12 at 20 48 48" src="https://user-images.githubusercontent.com/40702606/111074947-627e1100-84dd-11eb-9d3f-85fdbf23e290.png">
 
+## HRMS API (Assignment)
+
+### Runtime prerequisites
+
+- Java 17+
+- PostgreSQL
+- Redis (optional; APIs degrade gracefully if Redis is unavailable)
+
+Set environment variables as needed:
+
+- `SUPABASE_URL`
+- `SUPABASE_USERNAME`
+- `SUPABASE_PASSWORD`
+- `REDIS_HOST`
+- `REDIS_PORT`
+- `CORS_ALLOWED_ORIGINS`
+
+Run backend:
+
+```bash
+./mvnw spring-boot:run
+```
+
+### Attendance APIs
+
+Clock in worker:
+
+```bash
+curl -X POST http://localhost:8080/api/v1/hrms/attendance/clock-in \
+	-H "Content-Type: application/json" \
+	-d '{"workerId":1,"siteId":1}'
+```
+
+Clock out worker:
+
+```bash
+curl -X POST http://localhost:8080/api/v1/hrms/attendance/clock-out \
+	-H "Content-Type: application/json" \
+	-d '{"workerId":1}'
+```
+
+Attendance history by worker:
+
+```bash
+curl "http://localhost:8080/api/v1/hrms/attendance/worker/1?from=2026-05-01&to=2026-05-31&page=0&size=20"
+```
+
+Active workers from cache:
+
+```bash
+curl "http://localhost:8080/api/v1/hrms/attendance/active-workers"
+```
+
+### Overtime APIs
+
+Monthly summary:
+
+```bash
+curl "http://localhost:8080/api/v1/hrms/overtime/summary/1?month=2026-05"
+```
+
+Settle monthly overtime (cannot settle current month):
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/hrms/overtime/settle/1?month=2026-04"
+```
+
+### Master APIs
+
+Active workers:
+
+```bash
+curl "http://localhost:8080/api/v1/hrms/workers?page=0&size=20"
+```
+
+Active sites:
+
+```bash
+curl "http://localhost:8080/api/v1/hrms/sites?page=0&size=20"
+```
+
+### Postman
+
+Import `hrms-postman-collection.json` from the project root.
+

@@ -13,7 +13,10 @@ public interface AttendanceLogRepository extends JpaRepository<AttendanceLog, Lo
 
     Optional<AttendanceLog> findByWorkerIdAndClockOutIsNull(Long workerId);
 
-    @Query("SELECT a FROM AttendanceLog a JOIN FETCH a.worker w JOIN FETCH a.site s WHERE a.worker.id = :workerId AND a.date BETWEEN :from AND :to")
+        @Query(
+            value = "SELECT a FROM AttendanceLog a JOIN FETCH a.worker w JOIN FETCH a.site s WHERE a.worker.id = :workerId AND a.date BETWEEN :from AND :to",
+            countQuery = "SELECT COUNT(a) FROM AttendanceLog a WHERE a.worker.id = :workerId AND a.date BETWEEN :from AND :to"
+        )
     Page<AttendanceLog> findByWorkerIdAndDateRange(
             @Param("workerId") Long workerId,
             @Param("from") LocalDate from,
