@@ -45,6 +45,9 @@ build/
 # production
 **/build
 
+# accidental tracked binary from frontend wrapper
+src/frontend/node/node.exe
+
 # misc
 **/.DS_Store
 **/.env.local

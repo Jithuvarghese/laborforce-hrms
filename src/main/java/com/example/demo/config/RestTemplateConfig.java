@@ -12,8 +12,8 @@ public class RestTemplateConfig {
 
     @Bean
     public RestTemplate smsRestTemplate(RestTemplateBuilder builder,
-                                        @Value("${app.http.connect-timeout:2000}") long connectTimeoutMs,
-                                        @Value("${app.http.read-timeout:3000}") long readTimeoutMs) {
+                                        @Value("${demo.app.http.connect-timeout:2000}") long connectTimeoutMs,
+                                        @Value("${demo.app.http.read-timeout:3000}") long readTimeoutMs) {
         return builder
                 .requestFactory(() -> {
                     SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();

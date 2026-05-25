@@ -20,10 +20,10 @@ public class SmsNotificationListener {
 
     private final RestTemplate smsRestTemplate;
 
-    @Value("${app.sms.enabled:false}")
+    @Value("${demo.app.sms.enabled:false}")
     private boolean smsEnabled;
 
-    @Value("${app.sms.url:https://example.invalid/sms}")
+    @Value("${demo.app.sms.url:https://example.invalid/sms}")
     private @NonNull String smsUrl;
 
     public SmsNotificationListener(RestTemplate smsRestTemplate) {

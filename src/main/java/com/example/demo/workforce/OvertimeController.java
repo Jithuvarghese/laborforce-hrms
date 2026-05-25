@@ -2,6 +2,7 @@ package com.example.demo.workforce;
 
 import com.example.demo.workforce.dto.OvertimeSummaryResponse;
 import java.time.YearMonth;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,17 +22,19 @@ public class OvertimeController {
 
     @GetMapping("/summary/{workerId}")
     public OvertimeSummaryResponse getMonthlySummary(
-            @PathVariable Long workerId,
-            @RequestParam String month
+            @PathVariable @NonNull Long workerId,
+            @RequestParam @NonNull String month
     ) {
-        return overtimeService.getMonthlySummary(workerId, YearMonth.parse(month));
+        java.time.YearMonth ym = java.util.Objects.requireNonNull(YearMonth.parse(month));
+        return overtimeService.getMonthlySummary(workerId, ym);
     }
 
     @PostMapping("/settle/{workerId}")
     public OvertimeSummaryResponse settleMonthlyOvertime(
-            @PathVariable Long workerId,
-            @RequestParam String month
+            @PathVariable @NonNull Long workerId,
+            @RequestParam @NonNull String month
     ) {
-        return overtimeService.settleMonthlyOvertime(workerId, YearMonth.parse(month));
+        java.time.YearMonth ym = java.util.Objects.requireNonNull(YearMonth.parse(month));
+        return overtimeService.settleMonthlyOvertime(workerId, ym);
     }
 }
