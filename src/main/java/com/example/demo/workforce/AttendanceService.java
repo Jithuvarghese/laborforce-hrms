@@ -68,7 +68,7 @@ public class AttendanceService {
                 .isPresent();
 
         if (activeInCache || activeInDatabase) {
-            throw new DuplicateClockInException("Worker already has an active shift: " + worker.getId());
+                        throw new DuplicateClockInException("Worker is already clocked in at Site: " + site.getSiteName());
         }
 
         LocalDateTime now = LocalDateTime.now();

@@ -24,7 +24,6 @@ public class OvertimeService {
 
     private static final BigDecimal MONTHLY_OVERTIME_CAP = BigDecimal.valueOf(60);
     private static final BigDecimal TIER_ONE_LIMIT = BigDecimal.valueOf(2);
-    private static final BigDecimal TIER_TWO_LIMIT = BigDecimal.valueOf(4);
 
     private final OvertimeEntryRepository overtimeEntryRepository;
     private final WorkerRepository workerRepository;
@@ -162,27 +161,18 @@ public class OvertimeService {
     private BigDecimal calculateTieredAmount(BigDecimal baseHourlyRate, BigDecimal overtimeHours) {
         BigDecimal firstTierHours = overtimeHours.min(TIER_ONE_LIMIT);
 
-        BigDecimal secondTierHours = overtimeHours.subtract(TIER_ONE_LIMIT)
-                .max(BigDecimal.ZERO)
-                .min(TIER_TWO_LIMIT.subtract(TIER_ONE_LIMIT));
-
-        BigDecimal thirdTierHours = overtimeHours.subtract(TIER_TWO_LIMIT).max(BigDecimal.ZERO);
+        BigDecimal secondTierHours = overtimeHours.subtract(TIER_ONE_LIMIT).max(BigDecimal.ZERO);
 
         BigDecimal firstTierAmount = firstTierHours
                 .multiply(baseHourlyRate)
-                .multiply(BigDecimal.valueOf(1.25));
-
-        BigDecimal secondTierAmount = secondTierHours
-                .multiply(baseHourlyRate)
                 .multiply(BigDecimal.valueOf(1.50));
 
-        BigDecimal thirdTierAmount = thirdTierHours
+        BigDecimal secondTierAmount = secondTierHours
                 .multiply(baseHourlyRate)
                 .multiply(BigDecimal.valueOf(2.00));
 
         return firstTierAmount
                 .add(secondTierAmount)
-                .add(thirdTierAmount)
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
