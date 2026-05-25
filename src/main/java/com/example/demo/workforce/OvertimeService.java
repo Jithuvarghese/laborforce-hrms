@@ -12,11 +12,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Objects;
+import org.springframework.lang.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@SuppressWarnings("null")
 public class OvertimeService {
 
     private static final BigDecimal MONTHLY_OVERTIME_CAP = BigDecimal.valueOf(60);
@@ -36,9 +39,9 @@ public class OvertimeService {
     }
 
     @Transactional
-    public OvertimeEntry calculateAndSaveOvertime(Worker worker,
-                                                  AttendanceLog attendanceLog,
-                                                  BigDecimal overtimeHours) {
+        public OvertimeEntry calculateAndSaveOvertime(@NonNull Worker worker,
+                                                                                                  @NonNull AttendanceLog attendanceLog,
+                                                                                                  @NonNull BigDecimal overtimeHours) {
         YearMonth month = YearMonth.from(attendanceLog.getDate());
         BigDecimal existingMonthHours = overtimeEntryRepository.sumOvertimeHoursByWorkerAndMonth(
                 worker.getId(),
@@ -69,11 +72,11 @@ public class OvertimeService {
                 .settlementStatus(SettlementStatus.PENDING)
                 .build();
 
-        return overtimeEntryRepository.save(entry);
+                return Objects.requireNonNull(overtimeEntryRepository.save(entry));
     }
 
     @Transactional(readOnly = true)
-    public OvertimeSummaryResponse getMonthlySummary(Long workerId, YearMonth month) {
+        public OvertimeSummaryResponse getMonthlySummary(@NonNull Long workerId, @NonNull YearMonth month) {
         Worker worker = workerRepository.findById(workerId)
                 .orElseThrow(() -> new WorkerNotFoundException(workerId));
 
@@ -115,7 +118,7 @@ public class OvertimeService {
     }
 
     @Transactional
-    public OvertimeSummaryResponse settleMonthlyOvertime(Long workerId, YearMonth month) {
+        public OvertimeSummaryResponse settleMonthlyOvertime(@NonNull Long workerId, @NonNull YearMonth month) {
         if (YearMonth.now().equals(month)) {
             throw new CannotSettleCurrentMonthException(month.toString());
         }

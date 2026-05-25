@@ -17,14 +17,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@SuppressWarnings("null")
 public class AttendanceService {
 
     private static final BigDecimal DAILY_REGULAR_HOURS = BigDecimal.valueOf(8);
@@ -52,7 +55,7 @@ public class AttendanceService {
     }
 
     @Transactional
-    public AttendanceLogResponse clockIn(ClockInRequest request) {
+        public AttendanceLogResponse clockIn(@NonNull ClockInRequest request) {
         Worker worker = workerRepository.findByIdAndActiveTrue(request.workerId())
                 .orElseThrow(() -> new WorkerNotFoundException(request.workerId()));
 
@@ -76,7 +79,7 @@ public class AttendanceService {
                 .date(now.toLocalDate())
                 .build();
 
-        AttendanceLog saved = attendanceLogRepository.save(attendanceLog);
+        AttendanceLog saved = Objects.requireNonNull(attendanceLogRepository.save(attendanceLog));
 
         activeWorkerCacheService.addActiveWorker(
                 worker.getId(),
@@ -90,7 +93,7 @@ public class AttendanceService {
     }
 
     @Transactional
-    public AttendanceLogResponse clockOut(ClockOutRequest request) {
+        public AttendanceLogResponse clockOut(@NonNull ClockOutRequest request) {
         Worker worker = workerRepository.findById(request.workerId())
                 .orElseThrow(() -> new WorkerNotFoundException(request.workerId()));
 
@@ -108,7 +111,7 @@ public class AttendanceService {
         attendanceLog.setOvertimeHours(overtimeHours);
         attendanceLog.setFlagged(flagged);
 
-        AttendanceLog saved = attendanceLogRepository.save(attendanceLog);
+        AttendanceLog saved = Objects.requireNonNull(attendanceLogRepository.save(attendanceLog));
 
         if (overtimeHours.compareTo(BigDecimal.ZERO) > 0) {
             overtimeService.calculateAndSaveOvertime(worker, saved, overtimeHours);
@@ -129,7 +132,7 @@ public class AttendanceService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<AttendanceLogResponse> getAttendanceByWorker(Long workerId,
+        public PagedResponse<AttendanceLogResponse> getAttendanceByWorker(@NonNull Long workerId,
                                                                       LocalDate from,
                                                                       LocalDate to,
                                                                       int page,
@@ -185,8 +188,8 @@ public class AttendanceService {
     }
 
     private ActiveWorkerResponse toActiveWorkerResponse(Map<String, Object> payload) {
-        Long workerId = payload.get("workerId") != null ? Long.parseLong(payload.get("workerId").toString()) : null;
-        Long siteId = payload.get("siteId") != null ? Long.parseLong(payload.get("siteId").toString()) : null;
+                Long workerId = asLong(payload.get("workerId"));
+                Long siteId = asLong(payload.get("siteId"));
 
         return new ActiveWorkerResponse(
                 workerId,
@@ -196,4 +199,14 @@ public class AttendanceService {
                 payload.get("clockInTime") != null ? payload.get("clockInTime").toString() : null
         );
     }
+
+        private Long asLong(Object value) {
+                if (value == null) {
+                        return null;
+                }
+                if (value instanceof Number number) {
+                        return number.longValue();
+                }
+                return Long.valueOf(value.toString());
+        }
 }

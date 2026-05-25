@@ -21,28 +21,31 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Configuration
 @EnableCaching
+@SuppressWarnings("null")
 public class RedisConfig implements CachingConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(RedisConfig.class);
 
     @Value("${spring.data.redis.host:${redis.host:localhost}}")
-    private String redisHost;
+    private @NonNull String redisHost;
 
     @Value("${spring.data.redis.port:${redis.port:6379}}")
     private int redisPort;
 
     @Value("${spring.data.redis.connect-timeout:${redis.connect-timeout:2000ms}}")
-    private Duration connectTimeout;
+    private @NonNull Duration connectTimeout;
 
     @Value("${spring.data.redis.timeout:${redis.timeout:2000ms}}")
-    private Duration commandTimeout;
+    private @NonNull Duration commandTimeout;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration standaloneConfiguration =
+            RedisStandaloneConfiguration standaloneConfiguration =
                 new RedisStandaloneConfiguration(redisHost, redisPort);
         JedisClientConfiguration clientConfiguration = JedisClientConfiguration.builder()
                 .connectTimeout(connectTimeout)
@@ -53,7 +56,7 @@ public class RedisConfig implements CachingConfigurer {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(@NonNull RedisConnectionFactory redisConnectionFactory) {
         try {
             RedisTemplate<String, Object> template = new RedisTemplate<>();
             template.setConnectionFactory(redisConnectionFactory);
@@ -79,10 +82,10 @@ public class RedisConfig implements CachingConfigurer {
     }
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+    public CacheManager cacheManager(@NonNull RedisConnectionFactory redisConnectionFactory) {
         try {
-            RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
-                    .entryTtl(Duration.ofMinutes(10))
+                RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
+                    .entryTtl(java.time.Duration.ofMinutes(10))
                     .disableCachingNullValues();
 
             return RedisCacheManager.builder(redisConnectionFactory)
@@ -100,34 +103,34 @@ public class RedisConfig implements CachingConfigurer {
     public CacheErrorHandler errorHandler() {
         return new CacheErrorHandler() {
             @Override
-            public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
+            public void handleCacheGetError(RuntimeException exception, @NonNull Cache cache, @NonNull Object key) {
                 log.warn("Cache GET failed for cache={} key={}. Falling back to DB.",
-                        cache != null ? cache.getName() : "unknown",
-                        key,
-                        exception);
+                    cache.getName(),
+                    key,
+                    exception);
             }
 
             @Override
-            public void handleCachePutError(RuntimeException exception, Cache cache, Object key, Object value) {
+            public void handleCachePutError(RuntimeException exception, @NonNull Cache cache, @NonNull Object key, @Nullable Object value) {
                 log.warn("Cache PUT failed for cache={} key={}. Continuing without cache write.",
-                        cache != null ? cache.getName() : "unknown",
-                        key,
-                        exception);
+                    cache.getName(),
+                    key,
+                    exception);
             }
 
             @Override
-            public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
+            public void handleCacheEvictError(RuntimeException exception, @NonNull Cache cache, @NonNull Object key) {
                 log.warn("Cache EVICT failed for cache={} key={}. Continuing request.",
-                        cache != null ? cache.getName() : "unknown",
-                        key,
-                        exception);
+                    cache.getName(),
+                    key,
+                    exception);
             }
 
             @Override
-            public void handleCacheClearError(RuntimeException exception, Cache cache) {
+            public void handleCacheClearError(RuntimeException exception, @NonNull Cache cache) {
                 log.warn("Cache CLEAR failed for cache={}. Continuing request.",
-                        cache != null ? cache.getName() : "unknown",
-                        exception);
+                    cache.getName(),
+                    exception);
             }
         };
     }

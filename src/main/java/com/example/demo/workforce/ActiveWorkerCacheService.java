@@ -13,32 +13,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
+@SuppressWarnings("null")
 public class ActiveWorkerCacheService {
 
     private static final Logger log = LoggerFactory.getLogger(ActiveWorkerCacheService.class);
-    private static final Duration ACTIVE_WORKER_TTL = Duration.ofHours(16);
+    private static final @NonNull Duration ACTIVE_WORKER_TTL = Duration.ofHours(16);
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final @NonNull RedisTemplate<String, Object> redisTemplate;
 
-    public ActiveWorkerCacheService(RedisTemplate<String, Object> redisTemplate) {
+    public ActiveWorkerCacheService(@NonNull RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
-    public void addActiveWorker(Long workerId,
-                                String workerName,
-                                Long siteId,
-                                String siteName,
-                                LocalDateTime clockIn) {
+    public void addActiveWorker(@NonNull Long workerId,
+                                @NonNull String workerName,
+                                @NonNull Long siteId,
+                                @NonNull String siteName,
+                                @NonNull LocalDateTime clockIn) {
         String key = buildKey(workerId);
         Map<String, Object> payload = new HashMap<>();
         payload.put("workerId", workerId);
         payload.put("workerName", workerName);
         payload.put("siteId", siteId);
         payload.put("siteName", siteName);
-        payload.put("clockInTime", clockIn != null ? clockIn.toString() : null);
+        payload.put("clockInTime", clockIn.toString());
 
         try {
             redisTemplate.opsForHash().putAll(key, payload);
@@ -52,7 +54,7 @@ public class ActiveWorkerCacheService {
         }
     }
 
-    public void removeActiveWorker(Long workerId) {
+    public void removeActiveWorker(@NonNull Long workerId) {
         String key = buildKey(workerId);
         try {
             redisTemplate.delete(key);
@@ -95,7 +97,7 @@ public class ActiveWorkerCacheService {
         }
     }
 
-    public boolean isWorkerActive(Long workerId) {
+    public boolean isWorkerActive(@NonNull Long workerId) {
         String key = buildKey(workerId);
         try {
             Boolean exists = redisTemplate.hasKey(key);
@@ -112,11 +114,11 @@ public class ActiveWorkerCacheService {
         }
     }
 
-    public void invalidateWorkerCache(Long workerId) {
+    public void invalidateWorkerCache(@NonNull Long workerId) {
         removeActiveWorker(workerId);
     }
 
-    private String buildKey(Long workerId) {
+    private String buildKey(@NonNull Long workerId) {
         return "active_worker:" + workerId;
     }
 }

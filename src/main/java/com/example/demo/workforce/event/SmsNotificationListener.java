@@ -8,9 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.lang.NonNull;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
+@SuppressWarnings("null")
 public class SmsNotificationListener {
 
     private static final Logger log = LoggerFactory.getLogger(SmsNotificationListener.class);
@@ -21,7 +24,7 @@ public class SmsNotificationListener {
     private boolean smsEnabled;
 
     @Value("${app.sms.url:https://example.invalid/sms}")
-    private String smsUrl;
+    private @NonNull String smsUrl;
 
     public SmsNotificationListener(RestTemplate smsRestTemplate) {
         this.smsRestTemplate = smsRestTemplate;
@@ -42,7 +45,7 @@ public class SmsNotificationListener {
         try {
             ResponseEntity<Void> response = smsRestTemplate.postForEntity(smsUrl, payload, Void.class);
             log.info("SMS request completed with status {} for {}", response.getStatusCode(), event.phone());
-        } catch (Exception ex) {
+        } catch (RestClientException ex) {
             log.warn("Failed to send SMS to {}", event.phone(), ex);
         }
     }
