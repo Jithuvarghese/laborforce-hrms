@@ -45,12 +45,16 @@ build/
 # production
 **/build
 
+# accidental tracked binary from frontend wrapper
+src/frontend/node/node.exe
+
 # misc
 **/.DS_Store
 **/.env.local
 **/.env.development.local
 **/.env.test.local
 **/.env.production.local
+run-local.ps1
 
 **/npm-debug.log*
 **/yarn-debug.log*

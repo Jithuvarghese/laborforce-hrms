@@ -1,0 +1,277 @@
+{
+  "info": {
+    "name": "LaborForce HRMS API",
+    "description": "Importable Postman collection for seed data, attendance, overtime, and edge-case checks.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Create Worker - Rajan Kumar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rajan Kumar\",\n  \"phone\": \"9876543210\",\n  \"designation\": \"MASON\",\n  \"dailyWageRate\": 800,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/workers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "workers"]
+            }
+          }
+        },
+        {
+          "name": "Create Worker - Suresh Plumber",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Suresh Plumber\",\n  \"phone\": \"9876543211\",\n  \"designation\": \"PLUMBER\",\n  \"dailyWageRate\": 950,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/workers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "workers"]
+            }
+          }
+        },
+        {
+          "name": "Create Site - Greenfield Phase 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"siteName\": \"Greenfield Phase 2\",\n  \"location\": \"Whitefield, Bengaluru\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/sites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "sites"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "Clock In Worker",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workerId\": 1,\n  \"siteId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/attendance/clock-in",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "attendance", "clock-in"]
+            }
+          }
+        },
+        {
+          "name": "Clock Out Worker",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workerId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/attendance/clock-out",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "attendance", "clock-out"]
+            }
+          }
+        },
+        {
+          "name": "Get Active Workers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/attendance/active-workers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "attendance", "active-workers"]
+            }
+          }
+        },
+        {
+          "name": "Get Attendance Log",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/attendance/log?workerId=1&from=2026-05-01&to=2026-05-31&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "attendance", "log"],
+              "query": [
+                {
+                  "key": "workerId",
+                  "value": "1"
+                },
+                {
+                  "key": "from",
+                  "value": "2026-05-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-05-31"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Overtime",
+      "item": [
+        {
+          "name": "Get Monthly Summary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/overtime/summary/1?month=2026-04",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "overtime", "summary", "1"],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-04"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Settle Monthly Overtime",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/overtime/settle/1?month=2026-04",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "overtime", "settle", "1"],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-04"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Edge Cases",
+      "item": [
+        {
+          "name": "Clock In Again - Duplicate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workerId\": 1,\n  \"siteId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/attendance/clock-in",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "attendance", "clock-in"]
+            }
+          }
+        },
+        {
+          "name": "Clock Out Not Clocked In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workerId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/attendance/clock-out",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "attendance", "clock-out"]
+            }
+          }
+        },
+        {
+          "name": "Settle Current Month - Should Fail",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hrms/overtime/settle/1?month=2026-05",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hrms", "overtime", "settle", "1"],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-05"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}

@@ -1,30 +1,112 @@
-[![CICD](https://github.com/amigoscode/spring-boot-fullstack-professional/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/amigoscode/spring-boot-fullstack-professional/actions/workflows/deploy.yml)
+# LaborForce HRMS — Attendance & Overtime Engine
 
-https://amigoscode.com/p/full-stack-spring-boot-react
+## Base HRMS Forked
+amigoscode/spring-boot-fullstack-professional — chosen for its clean Spring Boot 3 + JPA + PostgreSQL structure with minimal boilerplate, making it easy to extend without fighting the existing code.
 
-![Cover](https://user-images.githubusercontent.com/40702606/111074799-bdfbcf00-84dc-11eb-98c0-d40a99aa0da7.png)
+## Quick Start
 
-# Course Description
-Spring Boot allows to take an idea/prototype and turn it into a real thing in matters minutes hours of months and years. A lot of companies use Spring Boot because it's easy to setup, learn and write code very fast without having to setup the low level platform code. Recently, Netflix has decided to switch their entire backend to Spring Boot. This shows that Spring Boot is a must if you are or want to become a software engineer in the Java world.
-This course teaches how to build a full stack application from the ground up and touches on very import concepts used in real live software development. Concepts such as:
+### Prerequisites
+- Java 17+
+- Maven 3.8+
+- Redis (local: `docker run -d -p 6379:6379 redis` or any free cloud Redis)
+- Supabase account (free tier at supabase.com)
 
-- Spring Boot Backend API
-- Frontend with React.js Hooks and Functions Components
-- Maven Build Tool
-- Databases using Postgres on Docker
-- Spring Data JPA
-- Server and Client Side Error Handling
-- Packaging applications for deployment using Docker and Jib
-- AWS RDS & Elastic Beanstalk
-- Software Deployment Automation with Github Actions
-- Software Deployment Monitoring with Slack
-- Unit and Integration Testing
+### Supabase Setup
+1. Create a new project at supabase.com
+2. Go to Settings → Database → Connection Pooling
+3. Copy the Connection Pooler URL (port 6543, PgBouncer) — NOT the direct connection (port 5432)
+4. Format: `jdbc:postgresql://db.XXXX.supabase.co:6543/postgres?pgbouncer=true`
 
-This course focus on teaching you the process needed to build your own apps and deploy to real users using real software development techniques and skills. The skills gained at the end of this can be applied immediately on your own projects, university projects and at your work place.
+### Environment Variables
+Create a `.env.local` file (already gitignored):
 
-Have you got what it takes to become a professional software engineer? Cool I'll see you inside. https://amigoscode.com/p/full-stack-spring-boot-react
+```env
+SPRING_DATASOURCE_URL=jdbc:postgresql://db.XXXX.supabase.co:6543/postgres?pgbouncer=true
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=your_password
+REDIS_HOST=localhost
+REDIS_PORT=6379
+CORS_ALLOWED_ORIGINS=http://localhost:3000
+```
 
-![Screenshot 2021-03-11 at 22 56 19](https://user-images.githubusercontent.com/40702606/111074929-5003d780-84dd-11eb-8284-e7c92c7e2905.png)
+### Run Locally (Windows PowerShell)
+```powershell
+./run-local.ps1
+```
 
-<img width="773" alt="Screenshot 2021-03-12 at 20 48 48" src="https://user-images.githubusercontent.com/40702606/111074947-627e1100-84dd-11eb-9d3f-85fdbf23e290.png">
+### Run Manually
+```bash
+mvn spring-boot:run
+```
 
+### Run Staging Profile
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=staging
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/hrms/workers, /api/workers | Create worker |
+| PUT | /api/v1/hrms/workers/{workerId}, /api/workers/{workerId} | Update worker profile and invalidate active-worker cache |
+| GET | /api/v1/hrms/workers, /api/workers | List active workers |
+| POST | /api/v1/hrms/sites, /api/sites | Create site |
+| GET | /api/v1/hrms/sites, /api/sites | List active sites |
+| POST | /api/v1/hrms/attendance/clock-in, /api/attendance/clock-in | Clock in worker |
+| POST | /api/v1/hrms/attendance/clock-out, /api/attendance/clock-out | Clock out, auto-calculates overtime |
+| GET | /api/v1/hrms/attendance/active-workers, /api/attendance/active | All clocked-in workers (from Redis) |
+| GET | /api/v1/hrms/attendance/log, /api/attendance/log | Paginated attendance history |
+| GET | /api/v1/hrms/overtime/summary/{workerId}, /api/overtime/summary/{workerId} | Monthly overtime summary |
+| POST | /api/v1/hrms/overtime/settle/{workerId}, /api/overtime/settle/{workerId} | Settle past month's overtime |
+
+See `postman-collection.json` for importable examples with setup and edge-case requests.
+
+## AI Tools Used
+- GitHub Copilot: entity scaffolding, repository query design, service layer business logic, ticket fixes, README and Postman generation
+- VS Code Copilot Chat: debugging, runtime verification, and configuration cleanup
+
+## Design Decisions
+
+### Schema
+- BigDecimal for all wage/hour fields — never double/float to avoid payroll rounding errors
+- DB-level unique constraint on (worker_id, clock_in) prevents duplicate clock-ins even under concurrent requests
+- OvertimeEntry stores overtimeRate at time of creation for audit trail — wage rates can change, but historical payouts must not
+- Index on (worker_id, date) on both AttendanceLog and OvertimeEntry for fast monthly queries
+
+### Caching
+- Redis stores only active workers (hot path, sub-millisecond reads for site supervisors)
+- Redis is NOT the source of truth — DB is always the fallback
+- 16-hour TTL as safety net for missed clock-outs
+- CacheErrorHandler and guarded Redis calls let the app degrade to DB-only behavior if Redis is unavailable
+
+### Transactions & Side Effects
+- Settlement is fully atomic: all OvertimeEntries for a worker+month commit together or none do
+- SMS fires via `@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)` — if DB rolls back, no SMS is sent; if SMS fails, settlement data is still correct
+- External API calls happen before the transaction opens so DB connections are never held during network I/O
+
+### Connection Pooling
+- HikariCP `max-lifetime=270000` ms, below Supabase's 300s idle kill threshold
+- `keepalive-time=60000` ms prevents idle connection drops
+- Staging uses PgBouncer (port 6543) for connection multiplexing
+
+## Ticket Fixes
+| Ticket | Problem | Fix |
+|--------|---------|-----|
+| LF-201 | CORS blocking frontend | `SecurityConfig` uses externalized `demo.app.cors.allowed-origins`, and `.cors()` is enabled in the security filter chain |
+| LF-202 | Redis down = app down | `CacheErrorHandler` plus guarded Redis calls and a 2s connect timeout keep the app running |
+| LF-203 | Full table dump, N+1 | `JOIN FETCH` JPQL, pageable repository query, and `PagedResponse` wrapper |
+| LF-204 | Partial settlement + early SMS | Single `@Transactional` settlement and `@TransactionalEventListener(AFTER_COMMIT)` SMS notification |
+| LF-205 | Connection exhaustion on staging | HikariCP tuning plus non-transactional external API calls and timeout-based HTTP client config |
+
+## What I'd Do Differently With More Time
+- Row-level DB locking on clock-in for true concurrent safety (`SELECT FOR UPDATE`)
+- WebSocket push for `/active-workers` instead of polling
+- Scheduled batch job for month-end overtime calculation instead of real-time
+- JWT auth with SUPERVISOR vs PAYROLL_OPERATOR roles
+- Integration tests for overtime edge cases (60hr cap, 16hr flag, tiered rate)
+
+## Submission Notes
+- Local-only launcher: `run-local.ps1`
+- Postman collection: `postman-collection.json`
+- The app is configured for PostgreSQL by default and can degrade gracefully if Redis is unavailable

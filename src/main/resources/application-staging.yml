@@ -1,0 +1,48 @@
+# SUPABASE CONNECTION SETUP:
+# Use the CONNECTION POOLER URL (PgBouncer, port 6543), NOT the direct connection (port 5432)
+# Example: jdbc:postgresql://db.YOUR_PROJECT_REF.supabase.co:6543/postgres?pgbouncer=true
+
+spring:
+  datasource:
+    url: jdbc:postgresql://aa9320n4muma7h.celswdmxhcr1.eu-west-1.rds.amazonaws.com:5432/amigoscode
+    username: amigoscode
+    password: password
+    hikari:
+      maximum-pool-size: 15
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      keepalive-time: 30000
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+  cache:
+    redis:
+      time-to-live: 300000 # 5 minutes for staging
+
+server:
+  port: 8080
+
+demo:
+  app:
+    hrms:
+    pagination:
+      default-page-size: 25
+      max-page-size: 100
+    cors:
+      allowed-origins:
+        - http://localhost:3000
+        - http://127.0.0.1:3000
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      allowed-headers:
+        - '*'
+      allow-credentials: true

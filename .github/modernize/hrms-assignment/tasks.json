@@ -1,0 +1,208 @@
+{
+  "tasks": [
+    {
+      "id": "001-create-feature-branch",
+      "type": "workflow",
+      "description": "Create and switch to feature branch",
+      "requirements": "Create branch feature/hrms-assignment and ensure work is isolated from main branch.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "git-workflow",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "branchCreated": "true"
+      },
+      "commitMessage": null
+    },
+    {
+      "id": "002-phase-1-config-foundation",
+      "type": "transform",
+      "description": "Migrate config to YAML and add Redis/Hikari/cache readiness",
+      "requirements": "Update pom.xml for Redis/cache/validation dependencies, ensure Spring Boot remains >=3.1.x, migrate application properties to application.yml, add application-staging.yml with Hikari/Redis/CORS/pagination configs.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "springboot-config-migration",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile"
+      },
+      "commitMessage": "chore: migrate to application.yml, add Redis/HikariCP/Cache config"
+    },
+    {
+      "id": "003-phase-2-domain-model",
+      "type": "transform",
+      "description": "Add HRMS workforce entities and enums",
+      "requirements": "Create entities Worker, Site, AttendanceLog, OvertimeEntry and enums Designation, SettlementStatus with required constraints, indexes, timestamps, and relationships.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "jpa-domain-modeling",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile"
+      },
+      "commitMessage": "USER_SPECIFIED_PHASE_2_COMMIT_MESSAGE"
+    },
+    {
+      "id": "004-phase-3-repositories",
+      "type": "transform",
+      "description": "Add repositories with fetch optimization and overtime aggregate query",
+      "requirements": "Implement WorkerRepository, SiteRepository, AttendanceLogRepository, OvertimeEntryRepository with required JPQL JOIN FETCH methods and monthly overtime sum query.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "spring-data-jpa-repository-queries",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile"
+      },
+      "commitMessage": "USER_SPECIFIED_PHASE_3_COMMIT_MESSAGE"
+    },
+    {
+      "id": "005-phase-4-redis-cache-layer",
+      "type": "transform",
+      "description": "Implement Redis caching config with graceful degradation",
+      "requirements": "Add RedisConfig, CacheErrorHandler, CachingConfigurer and EnableCaching; implement ActiveWorkerCacheService with safe defaults and Redis exception handling.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "spring-cache-redis",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile"
+      },
+      "commitMessage": "USER_SPECIFIED_PHASE_4_COMMIT_MESSAGE"
+    },
+    {
+      "id": "006-phase-5-dtos-and-errors",
+      "type": "transform",
+      "description": "Add DTO contracts and centralized exception handling",
+      "requirements": "Create request/response/paged DTOs; add HrmsException hierarchy; implement GlobalExceptionHandler returning structured error payloads.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "spring-rest-error-handling",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile"
+      },
+      "commitMessage": "USER_SPECIFIED_PHASE_5_COMMIT_MESSAGE"
+    },
+    {
+      "id": "007-phase-6-services-and-events",
+      "type": "transform",
+      "description": "Implement attendance/overtime services and settlement events",
+      "requirements": "Add AttendanceService and OvertimeService with exact rules for clock-in/out, overtime cap 60h, tiered rates, and settlement atomicity; add OvertimeSettledEvent and SmsNotificationListener with AFTER_COMMIT listener behavior.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "spring-service-transactional-events",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile"
+      },
+      "commitMessage": "USER_SPECIFIED_PHASE_6_COMMIT_MESSAGE"
+    },
+    {
+      "id": "008-phase-7-controllers",
+      "type": "transform",
+      "description": "Add HRMS API controllers with pagination",
+      "requirements": "Implement AttendanceController, OvertimeController, WorkerController, SiteController endpoints with required request validation and pagination parameters.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "spring-rest-controller-design",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile"
+      },
+      "commitMessage": "USER_SPECIFIED_PHASE_7_COMMIT_MESSAGE"
+    },
+    {
+      "id": "009-phase-8-lf-fixes",
+      "type": "transform",
+      "description": "Apply LF-201 through LF-205 remediation fixes",
+      "requirements": "Apply Security CORS configuration, Redis resilience hardening, pagination/N+1 verification, transactional settlement comments, and HikariCP + external API call refactor + RestTemplate timeouts.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "spring-resilience-performance-fixes",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile"
+      },
+      "commitMessage": "USER_SPECIFIED_PHASE_8_COMMIT_MESSAGES"
+    },
+    {
+      "id": "010-phase-9-docs-and-delivery",
+      "type": "docs",
+      "description": "Rewrite documentation and push feature branch",
+      "requirements": "Rewrite README.md, add curl-examples.md, run final compile checks and fix import/issues, create final commit and push origin feature/hrms-assignment.",
+      "environmentConfiguration": null,
+      "skills": [
+        {
+          "name": "technical-documentation",
+          "location": "local"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "false",
+        "compileCommand": "./mvnw.cmd -q -DskipTests compile",
+        "branchPushed": "true"
+      },
+      "commitMessage": "USER_SPECIFIED_PHASE_9_FINAL_COMMIT_MESSAGE"
+    }
+  ],
+  "metadata": {
+    "language": "java",
+    "planName": "hrms-assignment",
+    "projectName": "spring-boot-fullstack-professional",
+    "createdAt": "2026-05-25",
+    "version": "1.0",
+    "sourceType": "from-context",
+    "deployOption": "deploy-only",
+    "assessmentSkipped": true,
+    "blockers": [
+      "Exact commit message strings are not fully provided for phases 2-9 in the request.",
+      "Exact field-level entity constraints/index/timestamp details were referenced as specified but not included verbatim.",
+      "Exact endpoint contracts and pagination defaults are not fully enumerated in the request text."
+    ]
+  }
+}

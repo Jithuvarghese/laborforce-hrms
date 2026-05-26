@@ -2,18 +2,18 @@ package com.example.demo.student;
 
 import com.example.demo.student.exception.BadRequestException;
 import com.example.demo.student.exception.StudentNotFoundException;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Service
 public class StudentService {
 
     private final StudentRepository studentRepository;
+
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
@@ -31,6 +31,9 @@ public class StudentService {
     }
 
     public void deleteStudent(Long studentId) {
+        if (studentId == null) {
+            throw new BadRequestException("Student id must be provided");
+        }
         if(!studentRepository.existsById(studentId)) {
             throw new StudentNotFoundException(
                     "Student with id " + studentId + " does not exists");
