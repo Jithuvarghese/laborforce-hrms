@@ -48,16 +48,17 @@ mvn spring-boot:run -Dspring-boot.run.profiles=staging
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /api/v1/hrms/workers | Create worker |
-| GET | /api/v1/hrms/workers | List active workers |
-| POST | /api/v1/hrms/sites | Create site |
-| GET | /api/v1/hrms/sites | List active sites |
-| POST | /api/v1/hrms/attendance/clock-in | Clock in worker |
-| POST | /api/v1/hrms/attendance/clock-out | Clock out, auto-calculates overtime |
-| GET | /api/v1/hrms/attendance/active-workers | All clocked-in workers (from Redis) |
-| GET | /api/v1/hrms/attendance/log | Paginated attendance history |
-| GET | /api/v1/hrms/overtime/summary/{workerId}?month=YYYY-MM | Monthly overtime summary |
-| POST | /api/v1/hrms/overtime/settle/{workerId}?month=YYYY-MM | Settle past month's overtime |
+| POST | /api/v1/hrms/workers, /api/workers | Create worker |
+| PUT | /api/v1/hrms/workers/{workerId}, /api/workers/{workerId} | Update worker profile and invalidate active-worker cache |
+| GET | /api/v1/hrms/workers, /api/workers | List active workers |
+| POST | /api/v1/hrms/sites, /api/sites | Create site |
+| GET | /api/v1/hrms/sites, /api/sites | List active sites |
+| POST | /api/v1/hrms/attendance/clock-in, /api/attendance/clock-in | Clock in worker |
+| POST | /api/v1/hrms/attendance/clock-out, /api/attendance/clock-out | Clock out, auto-calculates overtime |
+| GET | /api/v1/hrms/attendance/active-workers, /api/attendance/active | All clocked-in workers (from Redis) |
+| GET | /api/v1/hrms/attendance/log, /api/attendance/log | Paginated attendance history |
+| GET | /api/v1/hrms/overtime/summary/{workerId}, /api/overtime/summary/{workerId} | Monthly overtime summary |
+| POST | /api/v1/hrms/overtime/settle/{workerId}, /api/overtime/settle/{workerId} | Settle past month's overtime |
 
 See `postman-collection.json` for importable examples with setup and edge-case requests.
 

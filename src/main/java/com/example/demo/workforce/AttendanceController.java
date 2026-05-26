@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/hrms/attendance")
+@RequestMapping({"/api/v1/hrms/attendance", "/api/attendance"})
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
@@ -60,7 +60,7 @@ public class AttendanceController {
         return attendanceService.getAttendanceByWorker(workerId, from, to, page, size);
     }
 
-    @GetMapping("/active-workers")
+    @GetMapping({"/active-workers", "/active"})
     public List<ActiveWorkerResponse> getActiveWorkers() {
         return attendanceService.getActiveWorkers();
     }

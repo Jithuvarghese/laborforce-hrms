@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/hrms/overtime")
+@RequestMapping({"/api/v1/hrms/overtime", "/api/overtime"})
 public class OvertimeController {
 
     private final OvertimeService overtimeService;
